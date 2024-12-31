@@ -1,0 +1,154 @@
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  padding: 40px;
+  min-height: 100vh;
+  background-color: #f9fafb;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative; /* Ensure the modal can be positioned relative to the dashboard */
+}
+
+/* Left Side: To-Do List Container */
+.todo-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 35%; /* Width for the left panel */
+  max-width: 400px;
+  margin-right: 20px;
+}
+
+/* Right Side: Task List Container */
+.task-list-container {
+  width: 60%; /* Width for the right panel */
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* To-Do List Card */
+.todo-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.todo-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the modal is above other content */
+  visibility: visible; /* Make sure the modal is visible */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: white;
+  padding: 20px; /* Padding inside the modal */
+  border-radius: 10px;
+  max-width: 700px; /* Increased width */
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1001;
+}
+
+/* Input Fields inside the modal */
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 12px; /* Added padding for better spacing inside input fields */
+  margin: 10px 0; /* Added margin to create space between inputs */
+  border: 1px solid #ccc; /* Light border for inputs */
+  border-radius: 8px; /* Rounded corners */
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+/* Modal Close Button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  background: transparent;
+  border: none;
+}
+
+/* Submit Button inside Modal */
+.modal-content button[type="submit"] {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px; /* Add some space above the button */
+}
+
+.modal-content button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* Buttons (Add Task and Add Todo) */
+.add-task-btn,
+.add-todo-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-task-btn:hover,
+.add-todo-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Modal Content Form */
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-list {
+  list-style-type: none; /* Removes the bullet points */
+  padding-left: 0; /* Removes any default left padding */
+}
+
+.task-list li {
+  margin: 5px 0; /* Optional: Adds space between each task */
+}
