@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/axiosInstance";
+// import "./Login.css"; // Import the CSS file
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -31,10 +32,14 @@ const Login = () => {
     }
   };
 
+  const handleSignupRedirect = () => {
+    navigate("/signup");
+  };
+
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleLogin}>
+        <h2>Login</h2>
         <input
           type="email"
           placeholder="Email"
@@ -49,6 +54,11 @@ const Login = () => {
         />
         <button type="submit">Login</button>
       </form>
+
+      <div className="signup-link">
+        <p>Don't have an account?</p>
+        <button onClick={handleSignupRedirect}>Signup</button>
+      </div>
     </div>
   );
 };

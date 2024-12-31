@@ -1,4 +1,3 @@
-// src/components/TodoCard.js
 import React from "react";
 
 const TodoCard = ({ todo, completedTaskCount }) => {

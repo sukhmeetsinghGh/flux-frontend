@@ -7,7 +7,7 @@ const TaskModal = ({ onClose, onSubmit, todoId }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(title, description);
-    setTitle(""); // Clear the input fields
+    setTitle("");
     setDescription("");
   };
 

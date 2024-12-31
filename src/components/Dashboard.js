@@ -115,8 +115,26 @@ const Dashboard = () => {
     return `${completedTasks}/${totalTasks}`;
   };
 
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post(
+        "/logout",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      localStorage.removeItem("auth-token");
+      navigate("/login");
+      toast.success("Logged out successfully!");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Failed to log out!");
+    }
+  };
   return (
     <div className="dashboard-container">
+      <button className="signout-btn" onClick={handleLogout}>
+        Sign Out
+      </button>
       <div className="todo-list-container">
         <h2 className="dashboard-header">Your To-Do Dashboard</h2>
         <button className="add-todo-btn" onClick={() => setShowTodoModal(true)}>
@@ -136,7 +154,7 @@ const Dashboard = () => {
       {/* Right panel - Task List */}
       {currentTodoId && (
         <div className="task-list-container">
-          <h3>Tasks for {currentTodo.name}</h3>
+          <h3>{currentTodo.name}</h3>
           {tasks.length === 0 ? (
             <p>No tasks available for this Todo.</p>
           ) : (

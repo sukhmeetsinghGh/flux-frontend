@@ -6,7 +6,7 @@ const Modal = ({ onClose, onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(name);
-    setName(""); // Clear the input
+    setName("");
   };
 
   return (
