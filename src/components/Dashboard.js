@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 import TaskModal from "./TaskModal";
 import TodoCard from "./TodoCard";
+import EditTodoModal from "./EditTodoModal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const Dashboard = () => {
   const token = localStorage.getItem("auth-token");
@@ -16,7 +18,10 @@ const Dashboard = () => {
   const [showTodoModal, setShowTodoModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [currentTodoId, setCurrentTodoId] = useState(null);
-  const [tasks, setTasks] = useState([]); // For storing tasks of the selected todo
+  const [tasks, setTasks] = useState([]);
+  const [expandedTask, setExpandedTask] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [todoToEdit, setTodoToEdit] = useState(null);
 
   useEffect(() => {
     if (!token) {
@@ -25,6 +30,16 @@ const Dashboard = () => {
     }
     fetchTodos();
   }, [token, navigate]);
+
+  useEffect(() => {
+    if (todos.length > 0) {
+      // Set the first Todo as the default selected Todo
+      const firstTodo = todos[0];
+      setCurrentTodoId(firstTodo.id);
+      setCurrentTodo(firstTodo);
+      fetchTasks(firstTodo.id);
+    }
+  }, [todos]);
 
   const fetchTodos = async () => {
     try {
@@ -43,7 +58,7 @@ const Dashboard = () => {
       const response = await axiosInstance.get(`lists/${todoId}/tasks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTasks(response.data.data); // Store tasks for the selected todo
+      setTasks(response.data.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
@@ -89,7 +104,7 @@ const Dashboard = () => {
   const handleTodoClick = (todo) => {
     setCurrentTodoId(todo.id);
     setCurrentTodo(todo);
-    setTasks(todo.tasks);
+    fetchTasks(todo.id);
   };
 
   const toggleTaskCompletion = async (taskId, completed) => {
@@ -108,13 +123,6 @@ const Dashboard = () => {
     }
   };
 
-  // Calculate the number of completed tasks out of total tasks for each To-Do
-  const getCompletedTaskCount = (todo) => {
-    const completedTasks = todo.tasks.filter((task) => task.completed).length;
-    const totalTasks = todo.tasks.length;
-    return `${completedTasks}/${totalTasks}`;
-  };
-
   const handleLogout = async () => {
     try {
       await axiosInstance.post(
@@ -130,6 +138,40 @@ const Dashboard = () => {
       toast.error("Failed to log out!");
     }
   };
+
+  const toggleDescription = (taskId, e) => {
+    e.stopPropagation();
+    setExpandedTask(expandedTask === taskId ? null : taskId);
+  };
+
+  const updateTodo = async (todoId, newTodoName) => {
+    try {
+      await axiosInstance.put(
+        `/lists/${todoId}`,
+        { name: newTodoName },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Todo updated successfully!");
+      fetchTodos();
+      setShowEditModal(false);
+    } catch (error) {
+      toast.error("Failed to update todo.");
+    }
+  };
+
+  // Calculate the number of completed tasks out of total tasks for each To-Do
+  const getCompletedTaskCount = (todo) => {
+    const completedTasks = todo.tasks.filter((task) => task.completed).length;
+    const totalTasks = todo.tasks.length;
+    return `${completedTasks}/${totalTasks}`;
+  };
+
+  // Open the Edit Todo modal
+  const handleEditTodo = (todo) => {
+    setTodoToEdit(todo);
+    setShowEditModal(true);
+  };
+
   return (
     <div className="dashboard-container">
       <button className="signout-btn" onClick={handleLogout}>
@@ -145,7 +187,8 @@ const Dashboard = () => {
           <div key={todo.id} onClick={() => handleTodoClick(todo)}>
             <TodoCard
               todo={todo}
-              completedTaskCount={getCompletedTaskCount(todo)} // Pass completion count as prop
+              completedTaskCount={getCompletedTaskCount(todo)}
+              onEdit={handleEditTodo}
             />
           </div>
         ))}
@@ -162,13 +205,14 @@ const Dashboard = () => {
               <ul className="task-list">
                 {tasks.map((task) => (
                   <li key={task.id}>
-                    <label>
+                    <div className="task-item">
                       <input
                         type="checkbox"
                         checked={task.completed || false}
-                        onChange={() =>
-                          toggleTaskCompletion(task.id, task.completed)
-                        }
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          toggleTaskCompletion(task.id, task.completed);
+                        }}
                       />
                       <span
                         style={{
@@ -176,10 +220,30 @@ const Dashboard = () => {
                             ? "line-through"
                             : "none",
                         }}
+                        onClick={(e) => toggleDescription(task.id, e)}
                       >
                         {task.title}
                       </span>
-                    </label>
+
+                      {/* Arrow icon */}
+                      <span
+                        className="arrow-icon"
+                        onClick={(e) => toggleDescription(task.id, e)}
+                      >
+                        {expandedTask === task.id ? (
+                          <FaChevronUp />
+                        ) : (
+                          <FaChevronDown />
+                        )}
+                      </span>
+
+                      {/* Show description when task is clicked */}
+                      {expandedTask === task.id && (
+                        <div className="task-description">
+                          {task.description}
+                        </div>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -197,6 +261,15 @@ const Dashboard = () => {
       {/* Show the To-Do Modal */}
       {showTodoModal && (
         <Modal onClose={() => setShowTodoModal(false)} onSubmit={addTodo} />
+      )}
+
+      {/* Show the Edit Todo Modal */}
+      {showEditModal && (
+        <EditTodoModal
+          todo={currentTodo}
+          onClose={() => setShowEditModal(false)}
+          onSubmit={(newTodoName) => updateTodo(currentTodo.id, newTodoName)}
+        />
       )}
 
       {/* Show the Task Modal */}

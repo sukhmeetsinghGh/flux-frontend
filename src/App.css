@@ -333,3 +333,17 @@
 .login-button:hover {
   background-color: #ddd;
 }
+
+.edit-todo-btn {
+  background-color: #ffff;
+  border: none;
+}
+.arrow-icon {
+  margin-left: auto;
+  cursor: pointer;
+  display: inline-block;
+}
+.task-description {
+  text-align: left;
+  padding: 15px;
+}

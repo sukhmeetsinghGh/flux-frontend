@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/axiosInstance";
-// import "./Login.css"; // Import the CSS file
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +10,6 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Make POST request for login
       const response = await axiosInstance.post("/login", {
         email,
         password,
