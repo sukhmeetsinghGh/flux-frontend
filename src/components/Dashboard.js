@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../lib/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import Modal from "../components/Modal"; // Import the To-Do modal
-import TaskModal from "../components/TaskModal"; // Import the Task modal
+import Modal from "./Modal";
+import TaskModal from "./TaskModal";
+import TodoCard from "./TodoCard";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = () => {
-  // Get token once at the top of the component
   const token = localStorage.getItem("auth-token");
   const navigate = useNavigate();
 
-  // State hooks for todos, modals, and current task data
   const [todos, setTodos] = useState([]);
-  const [showTodoModal, setShowTodoModal] = useState(false); // To control visibility of the To-Do modal
-  const [showTaskModal, setShowTaskModal] = useState(false); // To control visibility of the Task modal
-  const [currentTodoId, setCurrentTodoId] = useState(null); // To store the current To-Do ID when adding a task
+  const [currentTodo, setCurrentTodo] = useState(null);
+  const [showTodoModal, setShowTodoModal] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [currentTodoId, setCurrentTodoId] = useState(null);
+  const [tasks, setTasks] = useState([]); // For storing tasks of the selected todo
 
-  // Redirect to login if no token is found
   useEffect(() => {
     if (!token) {
-      navigate("/login"); // If no token, navigate to login page
+      navigate("/login");
       return;
     }
-
-    // Fetch todos if token is valid
     fetchTodos();
   }, [token, navigate]);
 
-  // Fetch To-Do Lists
   const fetchTodos = async () => {
     try {
       const response = await axiosInstance.get("/lists", {
@@ -35,10 +34,21 @@ const Dashboard = () => {
       setTodos(response.data.data);
     } catch (error) {
       console.error("Error fetching To-Do lists:", error);
+      toast.error("Failed to load To-Do lists!");
     }
   };
 
-  // Add a new To-Do List
+  const fetchTasks = async (todoId) => {
+    try {
+      const response = await axiosInstance.get(`lists/${todoId}/tasks`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTasks(response.data.data); // Store tasks for the selected todo
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
   const addTodo = async (name) => {
     try {
       await axiosInstance.post(
@@ -47,13 +57,13 @@ const Dashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setShowTodoModal(false);
-      fetchTodos(); // Refresh the To-Do lists after adding
+      fetchTodos();
+      toast.success("To-Do list added successfully!");
     } catch (error) {
       console.error("Error adding To-Do:", error);
     }
   };
 
-  // Add a new Task within a To-Do List
   const addTask = async (title, description) => {
     try {
       await axiosInstance.post(
@@ -66,14 +76,22 @@ const Dashboard = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setShowTaskModal(false); // Close task modal
-      fetchTodos(); // Refresh todos to show the new task
+      fetchTasks(currentTodoId);
+      fetchTodos();
+      setShowTaskModal(false);
+      toast.success("Task added successfully!");
     } catch (error) {
       console.error("Error adding task:", error);
+      toast.error("Failed to add task!");
     }
   };
 
-  // Mark Task as Completed
+  const handleTodoClick = (todo) => {
+    setCurrentTodoId(todo.id);
+    setCurrentTodo(todo);
+    setTasks(todo.tasks);
+  };
+
   const toggleTaskCompletion = async (taskId, completed) => {
     try {
       await axiosInstance.patch(
@@ -81,65 +99,89 @@ const Dashboard = () => {
         { completed: !completed },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchTodos(); // Refresh todos to reflect task completion status
+      fetchTasks(currentTodoId);
+      fetchTodos();
+      toast.success("Task completion status updated!");
     } catch (error) {
       console.error("Error toggling task completion:", error);
+      toast.error("Failed to update task completion status!");
     }
+  };
+
+  // Calculate the number of completed tasks out of total tasks for each To-Do
+  const getCompletedTaskCount = (todo) => {
+    const completedTasks = todo.tasks.filter((task) => task.completed).length;
+    const totalTasks = todo.tasks.length;
+    return `${completedTasks}/${totalTasks}`;
   };
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-header">Your To-Do Dashboard</h2>
-
-      {/* Button for adding a new To-Do */}
-      <button className="add-todo-btn" onClick={() => setShowTodoModal(true)}>
-        Add New To-Do
-      </button>
-
-      {/* Display the To-Do list */}
       <div className="todo-list-container">
+        <h2 className="dashboard-header">Your To-Do Dashboard</h2>
+        <button className="add-todo-btn" onClick={() => setShowTodoModal(true)}>
+          Add New To-Do
+        </button>
+
         {todos.map((todo) => (
-          <div key={todo.id} className="todo-card">
-            <h3>{todo.name}</h3>
-            {/* Button to add a new task to this To-Do */}
-            <button
-              className="add-task-btn"
-              onClick={() => {
-                setShowTaskModal(true);
-                setCurrentTodoId(todo.id); // Set the current To-Do ID for task creation
-              }}
-            >
-              Add Task
-            </button>
-            <ul className="task-list">
-              {todo.tasks.length === 0 ? (
-                <p>No tasks yet. Add some tasks!</p>
-              ) : (
-                todo.tasks.map((task) => (
-                  <li key={task.id}>
-                    <input
-                      type="checkbox"
-                      className="task-checkbox"
-                      checked={task.completed}
-                      onChange={() =>
-                        toggleTaskCompletion(task.id, task.completed)
-                      }
-                    />
-                    {task.title}
-                  </li>
-                ))
-              )}
-            </ul>
+          <div key={todo.id} onClick={() => handleTodoClick(todo)}>
+            <TodoCard
+              todo={todo}
+              completedTaskCount={getCompletedTaskCount(todo)} // Pass completion count as prop
+            />
           </div>
         ))}
       </div>
 
-      {/* To-Do Modal */}
+      {/* Right panel - Task List */}
+      {currentTodoId && (
+        <div className="task-list-container">
+          <h3>Tasks for {currentTodo.name}</h3>
+          {tasks.length === 0 ? (
+            <p>No tasks available for this Todo.</p>
+          ) : (
+            <>
+              <ul className="task-list">
+                {tasks.map((task) => (
+                  <li key={task.id}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={task.completed || false}
+                        onChange={() =>
+                          toggleTaskCompletion(task.id, task.completed)
+                        }
+                      />
+                      <span
+                        style={{
+                          textDecoration: task.completed
+                            ? "line-through"
+                            : "none",
+                        }}
+                      >
+                        {task.title}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <button
+            className="add-task-btn"
+            onClick={() => setShowTaskModal(true)}
+          >
+            Add Task
+          </button>
+        </div>
+      )}
+
+      {/* Show the To-Do Modal */}
       {showTodoModal && (
         <Modal onClose={() => setShowTodoModal(false)} onSubmit={addTodo} />
       )}
 
-      {/* Task Modal */}
+      {/* Show the Task Modal */}
       {showTaskModal && (
         <TaskModal
           onClose={() => setShowTaskModal(false)}
@@ -147,6 +189,8 @@ const Dashboard = () => {
           todoId={currentTodoId}
         />
       )}
+
+      <ToastContainer />
     </div>
   );
 };
