@@ -340,39 +340,31 @@
 }
 
 /* Styling for the ListGroup */
-.list-group-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-}
-
 .task-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 5px 0;
+}
+
+.arrow-icon {
+  margin-left: auto;
   cursor: pointer;
 }
 
 .task-description {
+  margin-top: 10px;
   padding-left: 20px;
-  padding-top: 10px;
   font-size: 14px;
   color: #555;
-  display: block;
+  background-color: #f9f9f9;
+  border-left: 3px solid #007bff;
+  padding: 10px;
 }
 
-.arrow-icon {
-  cursor: pointer;
-  font-size: 16px;
-  margin-left: 10px;
-}
-
-.arrow-icon:hover {
-  color: #007bff;
-}
-
-.list-group-item:hover {
-  background-color: #f8f9fa;
+.list-group-item {
+  margin-bottom: 10px;
 }

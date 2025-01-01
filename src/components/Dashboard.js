@@ -205,17 +205,20 @@ const Dashboard = () => {
               {tasks.map((task) => (
                 <div
                   key={task.id}
-                  className="list-group-item d-flex flex-column justify-content-between align-items-start"
+                  className="list-group-item d-flex flex-column w-100"
                 >
-                  <div className="task-item d-flex align-items-center justify-content-between w-100">
+                  <div
+                    className="task-item d-flex align-items-center justify-content-between w-100"
+                    onClick={(e) => toggleDescription(task.id, e)} // Toggle description on task item click
+                  >
                     <div className="d-flex align-items-center">
                       <input
                         type="checkbox"
                         checked={task.completed || false}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          toggleTaskCompletion(task.id, task.completed);
-                        }}
+                        onClick={(e) => e.stopPropagation()} // Prevent description toggle when clicking checkbox
+                        onChange={(e) =>
+                          toggleTaskCompletion(task.id, task.completed)
+                        } // Handle task completion
                       />
                       <span
                         style={{
@@ -223,17 +226,13 @@ const Dashboard = () => {
                             ? "line-through"
                             : "none",
                         }}
-                        onClick={(e) => toggleDescription(task.id, e)}
                       >
                         {task.title}
                       </span>
                     </div>
 
                     {/* Arrow icon */}
-                    <span
-                      className="arrow-icon"
-                      onClick={(e) => toggleDescription(task.id, e)}
-                    >
+                    <span className="arrow-icon">
                       {expandedTask === task.id ? (
                         <FaChevronUp />
                       ) : (
@@ -242,9 +241,9 @@ const Dashboard = () => {
                     </span>
                   </div>
 
-                  {/* Description */}
+                  {/* Task description, conditionally rendered when expanded */}
                   {expandedTask === task.id && (
-                    <div className="task-description mt-2">
+                    <div className="task-description mt-2 w-100">
                       <p>{task.description}</p>
                     </div>
                   )}
