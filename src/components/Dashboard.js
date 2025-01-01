@@ -201,11 +201,14 @@ const Dashboard = () => {
           {tasks.length === 0 ? (
             <p>No tasks available for this Todo.</p>
           ) : (
-            <>
-              <ul className="task-list">
-                {tasks.map((task) => (
-                  <li key={task.id}>
-                    <div className="task-item">
+            <div className="list-group">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="list-group-item d-flex flex-column justify-content-between align-items-start"
+                >
+                  <div className="task-item d-flex align-items-center justify-content-between w-100">
+                    <div className="d-flex align-items-center">
                       <input
                         type="checkbox"
                         checked={task.completed || false}
@@ -224,30 +227,30 @@ const Dashboard = () => {
                       >
                         {task.title}
                       </span>
-
-                      {/* Arrow icon */}
-                      <span
-                        className="arrow-icon"
-                        onClick={(e) => toggleDescription(task.id, e)}
-                      >
-                        {expandedTask === task.id ? (
-                          <FaChevronUp />
-                        ) : (
-                          <FaChevronDown />
-                        )}
-                      </span>
-
-                      {/* Show description when task is clicked */}
-                      {expandedTask === task.id && (
-                        <div className="task-description">
-                          {task.description}
-                        </div>
-                      )}
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </>
+
+                    {/* Arrow icon */}
+                    <span
+                      className="arrow-icon"
+                      onClick={(e) => toggleDescription(task.id, e)}
+                    >
+                      {expandedTask === task.id ? (
+                        <FaChevronUp />
+                      ) : (
+                        <FaChevronDown />
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  {expandedTask === task.id && (
+                    <div className="task-description mt-2">
+                      <p>{task.description}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
           <button
             className="add-task-btn"

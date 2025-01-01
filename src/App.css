@@ -338,12 +338,41 @@
   background-color: #ffff;
   border: none;
 }
-.arrow-icon {
-  margin-left: auto;
-  cursor: pointer;
-  display: inline-block;
+
+/* Styling for the ListGroup */
+.list-group-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
 }
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
 .task-description {
-  text-align: left;
-  padding: 15px;
+  padding-left: 20px;
+  padding-top: 10px;
+  font-size: 14px;
+  color: #555;
+  display: block;
+}
+
+.arrow-icon {
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.arrow-icon:hover {
+  color: #007bff;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
 }
