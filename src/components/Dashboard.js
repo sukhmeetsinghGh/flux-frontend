@@ -109,13 +109,14 @@ const Dashboard = () => {
 
   const toggleTaskCompletion = async (taskId, completed) => {
     try {
+      // Update task completion status without fetching all todos again
       await axiosInstance.patch(
         `/tasks/${taskId}/complete`,
         { completed: !completed },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      // Only fetch tasks for the current todo to refresh the task list
       fetchTasks(currentTodoId);
-      fetchTodos();
       toast.success("Task completion status updated!");
     } catch (error) {
       console.error("Error toggling task completion:", error);
